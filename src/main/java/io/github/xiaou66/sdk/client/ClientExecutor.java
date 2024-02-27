@@ -5,7 +5,6 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import io.github.xiaou66.sdk.BaseClientException;
 import io.github.xiaou66.sdk.BaseRequest;
 import io.github.xiaou66.sdk.BaseResponse;
-import io.github.xiaou66.sdk.IResponseType;
 import io.github.xiaou66.sdk.enums.RequestMethod;
 import io.github.xiaou66.sdk.util.ReflectUtils;
 import org.springframework.http.MediaType;
@@ -23,13 +22,17 @@ import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 
-
+/**
+ * @author xiaou
+ * @date 2024/2/22
+ */
+@SuppressWarnings({"unchecked", "rawtypes"})
 public class ClientExecutor {
     private static final RestTemplate REST_TEMPLATE = new RestTemplate();
 
-    private ClientExecutor() {}
+    private ClientExecutor () {}
 
-    public static <R extends BaseResponse, T extends BaseRequest> R execute(IClient<T> client, T request) throws BaseClientException {
+    public static <R extends BaseResponse, T extends BaseRequest<R>> R execute(IClient client, T request) throws BaseClientException {
         // 1. 给 client 修改请求参数
         client.beforeRequestParams(request);
         // 2. 组织请求
@@ -62,7 +65,7 @@ public class ClientExecutor {
     }
 
     @SuppressWarnings({"unchecked"})
-    public static<R extends BaseResponse, T extends BaseRequest> R execute(IClient<T> client,
+    public static<R extends BaseResponse, T extends BaseRequest<R>> R execute(IClient client,
                                                         RequestEntity<?> requestEntity,
                                                         T request) throws BaseClientException {
         ResponseEntity<String> response = null;
@@ -91,7 +94,7 @@ public class ClientExecutor {
         } while (true);
     }
 
-    private static <T extends BaseRequest> Object parseResult(IClient<T> client, String body, BaseRequest request) {
+    private static <R extends BaseResponse ,T extends BaseRequest<R>> Object parseResult(IClient client, String body, BaseRequest<R> request) {
         Type type = findBaseRequestByInterfaces(request);
         if (Objects.isNull(type)) {
             type = findBaseRequestBySuperClass(request);
@@ -124,22 +127,22 @@ public class ClientExecutor {
         }
     }
 
-    private static  Type findBaseRequestBySuperClass(BaseRequest request) {
+    private static <R extends BaseResponse> Type findBaseRequestBySuperClass(BaseRequest<R> request) {
         Type type = request.getClass().getGenericSuperclass();
-        if (IResponseType.class.isAssignableFrom((Class<?>) ((ParameterizedType) type).getRawType())) {
+        if (BaseResponse.class.isAssignableFrom((Class<?>) ((ParameterizedType) type).getRawType())) {
             return type;
         }
         return null;
     }
 
-    private static Type findBaseRequestByInterfaces(BaseRequest request) {
+    private static <R extends BaseResponse> Type findBaseRequestByInterfaces(BaseRequest<R> request) {
         return Arrays.stream(request.getClass().getGenericInterfaces())
-                .filter(type -> type instanceof ParameterizedType && IResponseType.class.isAssignableFrom((Class<?>) ((ParameterizedType) type).getRawType()))
+                .filter(type -> type instanceof ParameterizedType && BaseResponse.class.isAssignableFrom((Class<?>) ((ParameterizedType) type).getRawType()))
                 .findFirst()
                 .orElse(null);
     }
 
-    private static String getRequestParam(BaseRequest request) {
+    private static <R extends BaseResponse> String getRequestParam(BaseRequest<R> request) {
         Map<String, String> params = null;
         if (Objects.nonNull(request.getParams())) {
             params = request.getParams();

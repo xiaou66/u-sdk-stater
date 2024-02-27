@@ -9,7 +9,7 @@ import java.util.Map;
  * @author xiaou
  * @date 2024/2/27
  */
-public interface BaseRequest {
+public interface BaseRequest<R> {
     /**
      * 获取请求url
      * @return 请求url

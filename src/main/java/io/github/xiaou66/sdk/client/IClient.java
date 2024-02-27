@@ -2,6 +2,8 @@ package io.github.xiaou66.sdk.client;
 
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.github.xiaou66.sdk.BaseRequest;
+import io.github.xiaou66.sdk.BaseResponse;
 
 /**
  * 客户端，用于定义一个客户端的基本行为 <br />
@@ -9,7 +11,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
  * @author xiaou
  * @date 2024/2/22
  */
-public interface IClient<T> {
+public interface IClient<T extends BaseRequest<R>, R extends BaseResponse> {
     /**
      * 请求前参数处理
      *
