@@ -130,10 +130,7 @@ public class ClientExecutor {
 
     private static <R extends BaseResponse> Type findBaseRequestBySuperClass(BaseRequest<R> request) {
         Type type = request.getClass().getGenericSuperclass();
-        if (type instanceof ParameterizedType) {
-            return type;
-        }
-        return null;
+        return type;
     }
 
     private static <R extends BaseResponse> Type findBaseRequestByInterfaces(BaseRequest<R> request) {
