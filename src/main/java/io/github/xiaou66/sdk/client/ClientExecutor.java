@@ -7,9 +7,9 @@ import io.github.xiaou66.sdk.BaseRequest;
 import io.github.xiaou66.sdk.BaseResponse;
 import io.github.xiaou66.sdk.enums.RequestMethod;
 import io.github.xiaou66.sdk.util.ReflectUtils;
-import org.springframework.http.MediaType;
-import org.springframework.http.RequestEntity;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
@@ -46,10 +46,21 @@ public class ClientExecutor {
         if (RequestMethod.POST.equals(request.getRequestMethod())) {
             // POST 请求
             try {
-                requestEntity = RequestEntity
-                        .post(requestUrl)
-                        .accept(MediaType.APPLICATION_JSON)
-                        .body(client.getJson().writeValueAsString(request));
+                if (request.getMediaType().equals(MediaType.APPLICATION_JSON)) {
+                    requestEntity = RequestEntity
+                            .post(requestUrl)
+                            .body(client.getJson().writeValueAsString(request));
+                } else {
+                    // 设置请求参数
+                    MultiValueMap<String, String> formParameters = new LinkedMultiValueMap<>();
+                    formParameters.setAll(ReflectUtils.extractFields(request));
+                    HttpHeaders headers = new HttpHeaders();
+                    headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
+                    requestEntity = RequestEntity
+                            .post(requestUrl)
+                            .headers(headers)
+                            .body(formParameters, MultiValueMap.class);
+                }
             } catch (JsonProcessingException e) {
                 throw new BaseClientException(e);
             }
@@ -57,7 +68,7 @@ public class ClientExecutor {
             // GET 请求
             requestEntity = RequestEntity
                     .get(requestUrl)
-                    .accept(MediaType.APPLICATION_JSON)
+                    .accept(request.getMediaType())
                     .build();
         }
 

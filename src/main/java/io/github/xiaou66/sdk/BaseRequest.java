@@ -1,6 +1,7 @@
 package io.github.xiaou66.sdk;
 
 import io.github.xiaou66.sdk.enums.RequestMethod;
+import org.springframework.http.MediaType;
 
 import java.util.Map;
 
@@ -37,5 +38,13 @@ public interface BaseRequest<R> {
      */
     default Map<String, String> getBody(){
         return null;
+    }
+
+    /**
+     * 请求方式
+     * @return
+     */
+    default MediaType getMediaType() {
+        return MediaType.APPLICATION_JSON;
     }
 }
