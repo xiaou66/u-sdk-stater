@@ -6,7 +6,7 @@
 
     <groupId>io.github.xiaou66</groupId>
     <artifactId>u-sdk-stater</artifactId>
-    <version>0.0.3</version>
+    <version>0.0.4</version>
     <description>快速封装 SDK 的 starter</description>
     <url>https://github.com/xiaou66/u-sdk-stater</url>
     <!-- 开发人员信息 -->
@@ -109,9 +109,6 @@
                 <executions>
                     <execution>
                         <id>attach-sources</id>
-                        <goals>
-                            <goal>jar-no-fork</goal>
-                        </goals>
                     </execution>
                 </executions>
             </plugin>

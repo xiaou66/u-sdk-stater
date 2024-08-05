@@ -77,6 +77,7 @@ public class ClientExecutor {
                 response = REST_TEMPLATE.exchange(requestEntity, String.class);
                 R res = (R) parseResult(client, response.getBody(), request);
                 if (Objects.nonNull(res) && res.requestSuccess()) {
+                    client.beforeResponse(res, response.getBody());
                     return res;
                 }
             } catch (RestClientException exception) {
@@ -129,7 +130,7 @@ public class ClientExecutor {
 
     private static <R extends BaseResponse> Type findBaseRequestBySuperClass(BaseRequest<R> request) {
         Type type = request.getClass().getGenericSuperclass();
-        if (BaseResponse.class.isAssignableFrom((Class<?>) ((ParameterizedType) type).getRawType())) {
+        if (type instanceof ParameterizedType) {
             return type;
         }
         return null;
@@ -137,7 +138,7 @@ public class ClientExecutor {
 
     private static <R extends BaseResponse> Type findBaseRequestByInterfaces(BaseRequest<R> request) {
         return Arrays.stream(request.getClass().getGenericInterfaces())
-                .filter(type -> type instanceof ParameterizedType && BaseResponse.class.isAssignableFrom((Class<?>) ((ParameterizedType) type).getRawType()))
+                .filter(type -> type instanceof ParameterizedType && BaseRequest.class.isAssignableFrom((Class<?>) ((ParameterizedType) type).getRawType()))
                 .findFirst()
                 .orElse(null);
     }

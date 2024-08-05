@@ -17,7 +17,9 @@ public interface IClient<T extends BaseRequest<R>, R extends BaseResponse> {
      *
      * @param request 请求参数
      */
-    void beforeRequestParams(T request);
+    default void beforeRequestParams(T request) {}
+
+    default void beforeResponse(R res, String json) {}
 
     /**
      * 获取json解析器
